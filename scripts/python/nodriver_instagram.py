@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# frozen_string_literal: false
 
 import asyncio
 import json

@@ -76,7 +76,8 @@ class ScrapeTwitterJob < ApplicationJob
       following_count: data[:following_count] || profile.following_count,
       posts_count: data[:posts_count] || profile.posts_count,
       verified: data[:is_verified] || profile.verified,
-      avatar_url: data[:profile_image_url] || profile.avatar_url
+      avatar_url: data[:profile_image_url] || profile.avatar_url,
+      is_private: data.key?(:is_private) ? data[:is_private] : profile.is_private
     )
   end
 

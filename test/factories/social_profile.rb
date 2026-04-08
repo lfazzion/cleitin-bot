@@ -9,6 +9,7 @@ FactoryBot.define do
     following_count { Faker::Number.between(from: 50, to: 10_000) }
     verified { [true, false].sample }
     profile_url { "https://#{platform}.com/#{platform_username}" }
+    avatar_url { nil }
     is_private { false }
     posts_count { 0 }
 
