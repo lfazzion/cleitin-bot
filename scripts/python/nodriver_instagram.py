@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# frozen_string_literal: false
 
 import asyncio
 import json
@@ -18,10 +17,7 @@ async def scrape_profile(username, proxy=None):
     if proxy:
         browser_args.append(f"--proxy-server={proxy}")
 
-    browser = await uc.start(
-        headless=True,
-        browser_args=browser_args
-    )
+    browser = await uc.start(headless=True, browser_args=browser_args)
 
     try:
         page = await browser.get(f"https://www.instagram.com/{username}/")
@@ -43,7 +39,8 @@ async def scrape_profile(username, proxy=None):
                             posts_count: user.edge_owner_to_timeline_media.count,
                             is_private: user.is_private,
                             is_verified: user.is_verified,
-                            profile_pic_url: user.profile_pic_url_hd
+                            profile_pic_url: user.profile_pic_url_hd,
+                            avatar_url: user.profile_pic_url_hd
                         });
                     }
                     return null;
@@ -65,10 +62,7 @@ async def scrape_posts(username, limit=12, proxy=None):
     if proxy:
         browser_args.append(f"--proxy-server={proxy}")
 
-    browser = await uc.start(
-        headless=True,
-        browser_args=browser_args
-    )
+    browser = await uc.start(headless=True, browser_args=browser_args)
 
     try:
         page = await browser.get(f"https://www.instagram.com/{username}/")

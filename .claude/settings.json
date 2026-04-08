@@ -1,0 +1,6 @@
+{
+    "enablePlugins": {
+        "superpowers@claude-plugins-official": true
+    },
+    "outputStyle": "task-adaptive-minimal"
+}
