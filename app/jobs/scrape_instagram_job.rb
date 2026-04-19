@@ -11,22 +11,22 @@ class ScrapeInstagramJob < ApplicationJob
     return unless should_collect?(profile)
 
     scraper_data = scrape_profile(profile, options)
-    return if scraper_data.nil?
+
+    if scraper_data.nil?
+      profile.update!(last_collected_at: Time.current, collection_status: "degraded")
+      return
+    end
 
     update_profile(profile, scraper_data)
     create_snapshot(profile, scraper_data)
 
-    profile.update!(
-      last_collected_at: Time.current,
-      collection_status: 'success'
-    )
+    profile.update!(last_collected_at: Time.current, collection_status: "success")
   rescue ScrapingServices::RateLimitError => e
-    profile&.update(collection_status: 'rate_limited') if profile
+    profile&.update(collection_status: "rate_limited") if profile
     retry_job wait: e.retry_after
   rescue StandardError => e
     Rails.logger.error "[ScrapeInstagramJob] Erro ao coletar perfil #{profile_id}: #{e.message}"
-    profile&.update(collection_status: 'error') if profile
-    raise e
+    profile&.update(last_collected_at: Time.current, collection_status: "degraded") if profile
   end
 
   private
@@ -81,7 +81,7 @@ class ScrapeInstagramJob < ApplicationJob
     )
   end
 
-  def create_snapshot(profile, data)
+  def create_snapshot(profile, data, degraded: false)
     ProfileSnapshot.find_or_create_by(
       social_profile: profile,
       recorded_at: Time.current.beginning_of_hour
@@ -89,6 +89,7 @@ class ScrapeInstagramJob < ApplicationJob
       snapshot.followers_count = data[:followers_count]
       snapshot.following_count = data[:following_count]
       snapshot.posts_count = data[:posts_count]
+      snapshot.source_degraded = degraded
     end
   end
 end
