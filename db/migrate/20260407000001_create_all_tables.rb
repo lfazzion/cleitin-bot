@@ -55,6 +55,7 @@ class CreateAllTables < ActiveRecord::Migration[8.1]
       t.bigint "following_count"
       t.bigint "posts_count"
       t.datetime "recorded_at", null: false
+      t.boolean "source_degraded", default: false, null: false
       t.timestamps
 
       t.index ["social_profile_id"]

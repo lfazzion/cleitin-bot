@@ -91,6 +91,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_07_000001) do
     t.bigint "posts_count"
     t.datetime "recorded_at", null: false
     t.integer "social_profile_id", null: false
+    t.boolean "source_degraded", default: false, null: false
     t.datetime "updated_at", null: false
     t.index ["recorded_at"], name: "index_profile_snapshots_on_recorded_at"
     t.index ["social_profile_id"], name: "index_profile_snapshots_on_social_profile_id"
