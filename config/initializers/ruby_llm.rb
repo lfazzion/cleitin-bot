@@ -9,23 +9,32 @@
 begin
   require 'ruby_llm'
 
-  # Registra custom model no RubyLLM para evitar ModelNotFoundError com a API do Gemini
-  RubyLLM::Models.all << RubyLLM::Model::Info.new(
-    id: 'gemma-4-31b-it',
-    name: 'Gemma 4 31B',
-    provider: 'gemini',
-    max_output_tokens: 32768,
-    context_window: 262144
-  )
+  # Registra custom models no RubyLLM para evitar ModelNotFoundError.
+  # RubyLLM 1.14 não expõe API de registro pública; usamos guard idempotente
+  # para não duplicar entradas em reloads do Rails (dev/runner).
+  custom_models = [
+    RubyLLM::Model::Info.new(
+      id: 'gemma-4-31b-it',
+      name: 'Gemma 4 31B',
+      provider: 'gemini',
+      max_output_tokens: 32768,
+      context_window: 262144
+    ),
+    RubyLLM::Model::Info.new(
+      id: 'openai/gpt-oss-120b:free',
+      name: 'GPT OSS 120B Free',
+      provider: 'openrouter',
+      max_output_tokens: 131072,
+      context_window: 131072
+    )
+  ]
 
-  # Registra modelo novo da OpenRouter explicitamente
-  RubyLLM::Models.all << RubyLLM::Model::Info.new(
-    id: 'openai/gpt-oss-120b:free',
-    name: 'GPT OSS 120B Free',
-    provider: 'openrouter',
-    max_output_tokens: 131072,
-    context_window: 131072
-  )
+  registry = RubyLLM::Models.instance.all
+  custom_models.each do |model|
+    next if registry.any? { |m| m.id == model.id && m.provider == model.provider }
+
+    registry << model
+  end
 
   RubyLLM.configure do |config|
     config.gemini_api_key = ENV.fetch('GOOGLE_AI_API_KEY', nil)

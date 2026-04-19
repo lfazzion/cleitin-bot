@@ -80,8 +80,7 @@ class DiscordBotService
           event.respond(response_text)
         end
       rescue RubyLLM::ContextLengthExceededError, RubyLLM::RateLimitError,
-             RubyLLM::PaymentRequiredError, RubyLLM::OverloadedError,
-             RubyLLM::Error => e
+             RubyLLM::PaymentRequiredError, RubyLLM::OverloadedError => e
         Rails.logger.warn "[DiscordBotService] Modelo primário falhou (#{e.class.name}: #{e.message}), tentando fallback..."
         begin
           fallback_chat = ChatSessionManager.create_fallback_chat

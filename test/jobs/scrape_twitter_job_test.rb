@@ -50,7 +50,9 @@ class ScrapeTwitterJobTest < ActiveJob::TestCase
     @profile.reload
     assert_equal 'degraded', @profile.collection_status
     assert_not_nil @profile.last_collected_at
-    assert_equal 0, ProfileSnapshot.where(social_profile: @profile).count
+    snapshot = ProfileSnapshot.where(social_profile: @profile).last
+    assert_not_nil snapshot
+    assert snapshot.source_degraded
   end
 
   test 'should update profile with NodriverRunner (Python scraper)' do

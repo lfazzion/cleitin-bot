@@ -13,6 +13,7 @@ class ScrapeTwitterJob < ApplicationJob
     scraper_data = scrape_profile(profile, options)
 
     if scraper_data.nil?
+      create_snapshot(profile, {}, degraded: true)
       profile.update!(last_collected_at: Time.current, collection_status: "degraded")
       return
     end
@@ -26,7 +27,10 @@ class ScrapeTwitterJob < ApplicationJob
     retry_job wait: e.retry_after
   rescue StandardError => e
     Rails.logger.error "[ScrapeTwitterJob] Erro ao coletar perfil #{profile_id}: #{e.message}"
-    profile&.update(last_collected_at: Time.current, collection_status: "degraded") if profile
+    if profile
+      create_snapshot(profile, {}, degraded: true)
+      profile.update(last_collected_at: Time.current, collection_status: "degraded")
+    end
   end
 
   private
