@@ -11,9 +11,9 @@ class AiRouterTest < ActiveSupport::TestCase
     assert_instance_of Llm::GemmaClient, client
   end
 
-  test 'should route interactive long prompt to OpenrouterClient' do
-    client = AiRouter.send(:select_client, :interactive, 9000)
-    assert_instance_of Llm::OpenrouterClient, client
+  test 'should route interactive long prompt to GemmaClient now that it is limiteless' do
+    client = AiRouter.send(:select_client, :interactive, 90000)
+    assert_instance_of Llm::GemmaClient, client
   end
 
   test 'should raise ArgumentError for unknown context' do
@@ -47,35 +47,35 @@ class AiRouterTest < ActiveSupport::TestCase
     assert_equal 100, tokens
   end
 
-  test 'gemma_tpm_threshold should be 8000' do
-    assert_equal 8000, AiRouter.gemma_tpm_threshold
+  test 'gemma_tpm_threshold should be infinity' do
+    assert_equal Float::INFINITY, AiRouter.gemma_tpm_threshold
   end
 
   test 'GeminiClient model_id should be gemini flash lite' do
     assert_equal 'google/gemini-3.1-flash-lite', Llm::GeminiClient::MODEL_ID
   end
 
-  test 'GemmaClient model_id should be gemma 3 27b' do
-    assert_equal 'google/gemma-3-27b', Llm::GemmaClient::MODEL_ID
+  test 'GemmaClient model_id should be gemma 4 31b' do
+    assert_equal 'gemma-4-31b-it', Llm::GemmaClient::MODEL_ID
   end
 
-  test 'OpenrouterClient model_id should be claude 3.5 sonnet' do
-    assert_equal 'anthropic/claude-3.5-sonnet', Llm::OpenrouterClient::MODEL_ID
+  test 'OpenrouterClient model_id should be gemma 4 31b' do
+    assert_equal 'google/gemma-4-31b-it:free', Llm::OpenrouterClient::MODEL_ID
   end
 
   test 'GeminiClient daily quota should be 480' do
     assert_equal 480, Llm::GeminiClient::MAX_DAILY
   end
 
-  test 'GemmaClient daily quota should be 14000' do
-    assert_equal 14_000, Llm::GemmaClient::MAX_DAILY
+  test 'GemmaClient daily quota should be 1450' do
+    assert_equal 1_450, Llm::GemmaClient::MAX_DAILY
   end
 
   test 'BaseClient should raise QuotaExceededError when quota exceeded' do
     client = Llm::GeminiClient.new
 
-    # Mock SolidCache to return quota reached
-    SolidCache.expects(:read).with(regexp_matches(/gemini_daily/)).returns(480)
+    # Mock Rails.cache to return quota reached
+    Rails.cache.expects(:read).with(regexp_matches(/gemini_daily/)).returns(480)
 
     assert_raises Llm::BaseClient::QuotaExceededError do
       client.send(:check_quota!)

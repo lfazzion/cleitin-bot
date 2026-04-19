@@ -23,5 +23,9 @@ FactoryBot.define do
       following_count { nil }
       posts_count { nil }
     end
+
+    trait :degraded do
+      source_degraded { true }
+    end
   end
 end

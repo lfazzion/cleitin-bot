@@ -14,7 +14,7 @@ class ChatbotPromptTest < ActiveSupport::TestCase
   test 'system contém regras de comportamento' do
     prompt = Llm::PromptLoader.load('chatbot', user_message: 'test')
     assert_includes prompt[:system], 'REGRAS DE COMPORTAMENTO'
-    assert_includes prompt[:system], 'NÃO invente dados'
+    assert_includes prompt[:system], 'NÃO invente dados. Use sempre as ferramentas como fonte'
   end
 
   test 'system contém partial discord_format' do
