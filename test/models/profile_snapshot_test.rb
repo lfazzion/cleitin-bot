@@ -70,4 +70,14 @@ class ProfileSnapshotTest < ActiveSupport::TestCase
   test "should belong to social_profile" do
     assert_respond_to @snapshot, :social_profile
   end
+
+  test "source_degraded should default to false" do
+    snapshot = create(:profile_snapshot, social_profile: @profile)
+    assert_equal false, snapshot.source_degraded
+  end
+
+  test "source_degraded can be set to true" do
+    snapshot = create(:profile_snapshot, :degraded, social_profile: @profile)
+    assert_equal true, snapshot.source_degraded
+  end
 end

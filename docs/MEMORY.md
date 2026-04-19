@@ -66,6 +66,7 @@
 
 | Data | Padrão | Contexto |
 |------|--------|----------|
+| 2026-04-17 | Upgrade para Gemma 4 31B | Atualização do modelo interativo de curto contexto (google/gemma-4-31b) em substituição ao Gemma 3 27B. |
 | 2026-03-30 | Swap via zRAM (ALGO=zstd, 50%) em vez de disco físico | Poupa limite agressivo de IOPS (3000) do boot volume da OCI. Melhoria pragmática nativa via `zram-tools`. |
 | 2026-03-26 | ruby_llm ~> 1.14 (não 1.12) | Suporte a Imagen via `RubyLLM.paint` — API mudou em 1.14 |
 | 2026-03-26 | OpenStruct removido da stdlib em Ruby 4.0 | Usar classes plain ou Mocha mocks em testes em vez de `require 'ostruct'` |
@@ -150,6 +151,7 @@ rg "<palavra-chave do problema>" docs/memory/
 
 | Data | Ação | Seção Afetada |
 |------|------|---------------|
+| 2026-04-17 | Upgraded default short-context interaction model from Gemma 3 27B to Gemma 4 31B (`gemma_client.rb` and docs). | Padrões Ratificados |
 | 2026-03-30 | Atualização de arquitetura OCI Free Tier: Substituído o `/swapfile` (disco físico) por gerador de memória comprimida `zRAM`, minimizando o esgotamento de IOPS no boot volume. Ajustado swappiness de 10 para 100. Adição de parâmetros de cifra (Ciphers/MACS) estritos ao hardening SSH. | Contexto Ativo, Padrões Ratificados |
 | 2026-03-28 | Correções deploy.sh: rollback com git reset --hard (em vez de git checkout), snapshot de Docker image IDs pré-deploy para possibility de rollback completo de containers. | Contexto Ativo |
 | 2026-03-28 | Correções review PR #10: oracle-cloud-setup.sh — propagar $DOCKER_USER para limits.d (Phase 8) e chown (Phase 9), sshd -t antes de restart SSH, iptables idempotente com -C check, fstab append com grep -qF. ERROS.md checklist atualizada. | Contexto Ativo, Lições Aprendidas |

@@ -29,3 +29,4 @@ db/*.sqlite3-shm
 .env
 .env.*
 !.env.example
+.worktrees/

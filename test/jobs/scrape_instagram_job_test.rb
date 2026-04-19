@@ -39,7 +39,7 @@ class ScrapeInstagramJobTest < ActiveJob::TestCase
     assert_equal 1, ProfileSnapshot.where(social_profile: @profile).count
   end
 
-  test 'should skip when scraper returns nil' do
+  test 'should mark profile as degraded when scraper returns nil' do
     mock_scraper = mock('scraper')
     mock_scraper.stubs(:scrape_profile).returns(nil)
     mock_scraper.stubs(:close)
@@ -48,8 +48,11 @@ class ScrapeInstagramJobTest < ActiveJob::TestCase
     ScrapeInstagramJob.perform_now(@profile.id)
 
     @profile.reload
-    assert_nil @profile.last_collected_at
-    assert_equal 0, ProfileSnapshot.where(social_profile: @profile).count
+    assert_equal 'degraded', @profile.collection_status
+    assert_not_nil @profile.last_collected_at
+    snapshot = ProfileSnapshot.where(social_profile: @profile).last
+    assert_not_nil snapshot
+    assert snapshot.source_degraded
   end
 
   test 'should update profile with NodriverRunner (Python scraper)' do
@@ -87,18 +90,31 @@ class ScrapeInstagramJobTest < ActiveJob::TestCase
     assert_equal first_count, ProfileSnapshot.where(social_profile: @profile).count
   end
 
-  test 'should set error status on StandardError' do
+  test 'should complete without raising and mark degraded on StandardError' do
     mock_scraper = mock('scraper')
     mock_scraper.stubs(:scrape_profile).raises(StandardError.new('timeout'))
     mock_scraper.stubs(:close)
     ScrapingServices::InstagramScraper.stubs(:new).returns(mock_scraper)
 
-    assert_raises(StandardError) do
+    assert_nothing_raised do
       ScrapeInstagramJob.perform_now(@profile.id)
     end
 
     @profile.reload
-    assert_equal 'error', @profile.collection_status
+    assert_equal 'degraded', @profile.collection_status
+    assert_not_nil @profile.last_collected_at
+  end
+
+  test 'should mark snapshot as not source_degraded on successful collection' do
+    mock_scraper = mock('scraper')
+    mock_scraper.stubs(:scrape_profile).returns(@scraper_data)
+    mock_scraper.stubs(:close)
+    ScrapingServices::InstagramScraper.stubs(:new).returns(mock_scraper)
+
+    ScrapeInstagramJob.perform_now(@profile.id)
+
+    snapshot = ProfileSnapshot.where(social_profile: @profile).last
+    assert_equal false, snapshot.source_degraded
   end
 
   test 'should set rate_limited status on RateLimitError' do

@@ -33,7 +33,7 @@
 
 1.  **Orquestrador de IA de Ponta:**
     *   Criar módulo Router que fará proxy e escolhas transacionais de qual LLM usar para otimização do projeto.
-    *   Bifurcação padrão: **Gemini 3.1 Flash Lite** isolado em background workers que demandem alta captação de tokens de mining ou Discovery; **Gemma 3 27B / Claude 3.5 via OpenRouter** na linha da frente para Chat dinâmicos sem tempo de espera. 
+    *   Bifurcação padrão: **Gemini 3.1 Flash Lite** isolado em background workers que demandem alta captação de tokens de mining ou Discovery; **Gemma 4 31B (Nativo / via OpenRouter)** na linha da frente para Chat dinâmicos sem tempo de espera. 
 2.  **Repositório YAML Estrutural (Prompts System):**
     *   Puxar todo prompt em plain text das sub-classes e subir para layouts em `config/prompts/`.
     *   Incluir macros em `ERB` cru ou Liquid para embutir fragmentos compartilhados (regra do Never Invent, do Null vs Zero) em conjunto com a injeção fatalística de timestamp string `<current_datetime: Time.Current>` nos base-systems, matando alucinações de agenda que modelos pre-treinados costumam carregar.

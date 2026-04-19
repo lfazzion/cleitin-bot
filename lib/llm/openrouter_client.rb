@@ -2,8 +2,8 @@
 
 module Llm
   class OpenrouterClient < BaseClient
-    # Claude 3.5 Sonnet via OpenRouter — fallback pesado para chat
-    MODEL_ID = 'anthropic/claude-3.5-sonnet'
+    # Gemma 4 31B via OpenRouter — fallback gratuito
+    MODEL_ID = 'google/gemma-4-31b-it:free'
     MAX_DAILY = 400 # conservador para tier gratuito/pago básico
 
     def model_id = MODEL_ID

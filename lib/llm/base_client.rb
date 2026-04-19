@@ -40,12 +40,12 @@ module Llm
 
     def track_request!
       cache_key = daily_cache_key
-      current = SolidCache.read(cache_key).to_i
-      SolidCache.write(cache_key, current + 1, expires_in: 26.hours)
+      current = Rails.cache.read(cache_key).to_i
+      Rails.cache.write(cache_key, current + 1, expires_in: 26.hours)
     end
 
     def daily_request_count
-      SolidCache.read(daily_cache_key).to_i
+      Rails.cache.read(daily_cache_key).to_i
     end
 
     def daily_cache_key

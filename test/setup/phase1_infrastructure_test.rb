@@ -14,13 +14,9 @@ class Phase1InfrastructureTest < ActiveSupport::TestCase
   test "all migrations should exist" do
     migrate_dir = Rails.root.join("db", "migrate")
 
-    profile_migration = Dir.glob("#{migrate_dir}/*create_social_profiles*").first
-    post_migration = Dir.glob("#{migrate_dir}/*create_social_posts*").first
-    snapshot_migration = Dir.glob("#{migrate_dir}/*create_profile_snapshots*").first
+    consolidated_migration = Dir.glob("#{migrate_dir}/*create_all_tables*").first
 
-    assert profile_migration, "SocialProfile migration not found"
-    assert post_migration, "SocialPost migration not found"
-    assert snapshot_migration, "ProfileSnapshot migration not found"
+    assert consolidated_migration, "Consolidated migration (create_all_tables) not found"
   end
 
   test "all tables should exist in test database" do

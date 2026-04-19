@@ -2,7 +2,8 @@
 
 class ChatSessionManager
   TTL_MINUTES = 30
-  FALLBACK_MODEL = 'gemini-3.1-flash-lite-preview'
+  PRIMARY_MODEL = 'openai/gpt-oss-120b:free'
+  FALLBACK_MODEL = 'gemma-4-31b-it'
 
   class << self
     def get_or_create(user_id, channel_id)
@@ -43,8 +44,8 @@ class ChatSessionManager
 
     private
 
-    def build_chat(model: nil)
-      chat = model ? RubyLLM.chat(model: model) : RubyLLM.chat
+    def build_chat(model: PRIMARY_MODEL)
+      chat = RubyLLM.chat(model: model)
       all_tool_classes.each { |tool_class| chat.with_tool(tool_class) }
       prompt = Llm::PromptLoader.load('chatbot', user_message: '')
       chat.with_instructions(prompt[:system])

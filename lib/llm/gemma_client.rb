@@ -2,10 +2,10 @@
 
 module Llm
   class GemmaClient < BaseClient
-    # Gemma 3 27B: 15K TPM, 30 RPM, 14.400 RPD
-    MODEL_ID = 'google/gemma-3-27b'
-    MAX_DAILY = 14_000 # margem de segurança dos 14.400 RPD
-    TPM_SAFE_THRESHOLD = 8_000 # acima disso, escalar para OpenRouter
+    # Gemma 4 31B (instruction-tuned): Ilimitado TPM, 1.500 RPD
+    MODEL_ID = 'gemma-4-31b-it'
+    MAX_DAILY = 1_450 # margem de segurança dos 1.500 RPD
+    TPM_SAFE_THRESHOLD = Float::INFINITY # sem limite de TPM, não escala mais para OpenRouter baseado em size
 
     def model_id = MODEL_ID
     def daily_quota_key = 'gemma_daily'
