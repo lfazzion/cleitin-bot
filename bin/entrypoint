@@ -1,8 +1,8 @@
 #!/bin/bash
 set -e
 
-echo "Running database migrations..."
-bundle exec rails db:migrate
+echo "Preparing database..."
+bundle exec rails db:prepare
 
 echo "Starting Puma..."
 exec "$@"
