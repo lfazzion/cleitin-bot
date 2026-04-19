@@ -8,7 +8,7 @@ Integração pura com LLMs via OpenRouter, Gemini, Gemma.
 |---------|-----------|
 | `base_client.rb` | Classe base com error handling e retry |
 | `gemini_client.rb` | Cliente Gemini 3.1 Flash (tier: background) |
-| `gemma_client.rb` | Cliente Gemma 3 27B/12B (tier: interactive short) |
+| `gemma_client.rb` | Cliente Gemma 4 31B/12B (tier: interactive short) |
 | `openrouter_client.rb` | Cliente OpenRouter (tier: interactive long) |
 | `prompt_loader.rb` | Carrega templates YAML de `config/prompts/` |
 
