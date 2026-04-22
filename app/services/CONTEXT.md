@@ -1,6 +1,6 @@
 # Contexto: app/services
 
-Lógica de negócios e orquestração do BotDiscord.
+Lógica de negócios e orquestração do Cleitin Bot.
 
 ## Services Existentes
 

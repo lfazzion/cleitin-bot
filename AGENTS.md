@@ -1,4 +1,4 @@
-# AGENTS.md — BotDiscord (Router)
+# AGENTS.md — Cleitin Bot (Router)
 
 Headless Rails 8.1 app for influencer data mining, scraping, and Discord bot integration. Ruby ~> 4.0, SQLite3 (WAL), Solid Queue/Cache, Minitest. All commands run inside Docker.
 

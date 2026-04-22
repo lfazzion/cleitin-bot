@@ -8,11 +8,11 @@ require 'action_controller/railtie'
 
 Bundler.require(*Rails.groups)
 
-module BotDiscord
+module CleitinBot
   class Application < Rails::Application
     config.load_defaults 8.0
     config.api_only = false
-    config.session_store :cookie_store, key: '_bot_discord_session'
+    config.session_store :cookie_store, key: '_cleitin_bot_session'
     config.middleware.use ActionDispatch::Cookies
     config.middleware.use config.session_store
     config.autoload_lib(ignore: %w[assets tasks scraping llm])

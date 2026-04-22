@@ -17,7 +17,7 @@ nenhuma. Em caso de dúvida, pergunte — nunca assuma.
 
 ## CONTEXTO DO PROJETO
 
-- Projeto: BotDiscord (Router) — Rails 8.1 headless, Ruby ~> 4.0, SQLite3 WAL, Solid Queue/Cache
+- Projeto: Cleitin Bot (Router) — Rails 8.1 headless, Ruby ~> 4.0, SQLite3 WAL, Solid Queue/Cache
 - Branch base: `[BRANCH_BASE]`
 - Fase implementada: `[NOME_DA_FASE]`
 - Tipo de mudança: `[TIPO]`

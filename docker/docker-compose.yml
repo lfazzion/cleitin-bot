@@ -6,7 +6,7 @@ networks:
 services:
   # ── Serviço principal: API Puma ────────────────────────────────────────────
   app:
-    image: botdiscord:${IMAGE_TAG:-latest}
+    image: cleitin-bot:${IMAGE_TAG:-latest}
     build:
       context: ..                    # raiz do projeto
       dockerfile: docker/Dockerfile  # relativo ao context
@@ -41,7 +41,7 @@ services:
 
   # ── Serviço de Jobs: Solid Queue ──────────────────────────────────────────
   jobs:
-    image: botdiscord:${IMAGE_TAG:-latest}
+    image: cleitin-bot:${IMAGE_TAG:-latest}
     build:
       context: ..
       dockerfile: docker/Dockerfile
@@ -67,7 +67,7 @@ services:
 
   # ── Discord Bot: Chatbot Tool Caller ─────────────────────────────────────
   discord-bot:
-    image: botdiscord:${IMAGE_TAG:-latest}
+    image: cleitin-bot:${IMAGE_TAG:-latest}
     build:
       context: ..
       dockerfile: docker/Dockerfile

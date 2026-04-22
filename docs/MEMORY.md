@@ -1,4 +1,4 @@
-# MEMORY.md — BotDiscord Write-Back Memory
+# MEMORY.md — Cleitin Bot Write-Back Memory
 
 > **Fonte de verdade viva do projeto.** Este arquivo é lido obrigatoriamente pela IA no
 > início de toda tarefa sistêmica e atualizado autonomamente via Write-Back Protocol
@@ -14,7 +14,7 @@
   - `set -Eeuo pipefail` em deploy.sh e recover-failure.sh (ERR trap propaga para rollback)
   - Healthcheck nativo docker-compose: `curl /up` (app) + `curl /json/version` (chrome)
   - `depends_on` app→chrome mudou de `service_started` para `service_healthy` (determinístico)
-  - Image tagging: `botdiscord:${IMAGE_TAG:-latest}` em app/jobs/discord-bot; `IMAGE_TAG` = 12 chars do commit hash
+  - Image tagging: `cleitin-bot:${IMAGE_TAG:-latest}` em app/jobs/discord-bot; `IMAGE_TAG` = 12 chars do commit hash
   - Deploy usa `--wait --wait-timeout 90` em vez de loop manual de health check (12 linhas → 1 flag)
   - Rollback restaura imagem tagged anterior (sem rebuild) — `IMAGE_TAG="${LOCAL:0:12}" compose up`
   - Builder cache prune (`docker builder prune -f --filter "until=24h"`) no deploy

@@ -5,7 +5,7 @@
 # Execute como root ou com sudo após criar a instância.
 #
 # Uso:
-#   curl -sSL https://raw.githubusercontent.com/seu-usuario/BotDiscord/main/scripts/oracle-cloud-setup.sh | sudo bash
+#   curl -sSL https://raw.githubusercontent.com/seu-usuario/cleitin-bot/main/scripts/oracle-cloud-setup.sh | sudo bash
 #
 # Ou copie para a VM e execute:
 #   sudo bash oracle-cloud-setup.sh
@@ -27,7 +27,7 @@ if [[ "$ARCH" != "aarch64" ]]; then
   log "AVISO: Arquitetura detectada: $ARCH (esperado: aarch64/ARM64)"
 fi
 
-log "=== Oracle Cloud VM Setup — BotDiscord ==="
+log "=== Oracle Cloud VM Setup — Cleitin Bot ==="
 log "Arquitetura: $ARCH"
 log "RAM total: $(free -h | awk '/Mem:/{print $2}')"
 log "CPUs: $(nproc)"
@@ -63,7 +63,7 @@ log "FASE 2: Hardening SSH (Drop-in config)..."
 mkdir -p /etc/ssh/sshd_config.d
 
 # Criar arquivo de configuração em vez de alterar o original (melhor prática 2026)
-cat > /etc/ssh/sshd_config.d/99-botdiscord-hardening.conf <<'SSH_EOF'
+cat > /etc/ssh/sshd_config.d/99-cleitin-bot-hardening.conf <<'SSH_EOF'
 PermitRootLogin no
 PasswordAuthentication no
 KbdInteractiveAuthentication no
@@ -91,7 +91,7 @@ chmod 0755 /run/sshd
 # Validar config antes de restart — erro de sintaxe = lockout SSH
 if ! sshd -t; then
   err "SSH config inválida — revertendo drop-in"
-  rm -f /etc/ssh/sshd_config.d/99-botdiscord-hardening.conf
+  rm -f /etc/ssh/sshd_config.d/99-cleitin-bot-hardening.conf
   exit 1
 fi
 
@@ -419,7 +419,7 @@ ok "DOCKER_DEFAULT_PLATFORM=linux/arm64 adicionado ao /etc/profile.d/"
 
 log "FASE 9: Otimizações de kernel..."
 
-cat > /etc/sysctl.d/99-botdiscord.conf <<'EOF'
+cat > /etc/sysctl.d/99-cleitin-bot.conf <<'EOF'
 # Network performance
 net.core.somaxconn = 4096
 net.core.netdev_max_backlog = 5000
@@ -451,11 +451,11 @@ fi
 # Garantir carregamento automático no boot
 echo "tcp_bbr" > /etc/modules-load.d/bbr.conf
 
-sysctl -p /etc/sysctl.d/99-botdiscord.conf
+sysctl -p /etc/sysctl.d/99-cleitin-bot.conf
 ok "Kernel tunado (network, file descriptors, OOM)"
 
 # Aumentar limites de arquivo para o usuário detectado
-cat > /etc/security/limits.d/99-botdiscord.conf <<EOF
+cat > /etc/security/limits.d/99-cleitin-bot.conf <<EOF
 ${DOCKER_USER} soft nofile 65536
 ${DOCKER_USER} hard nofile 65536
 ${DOCKER_USER} soft nproc 16384
@@ -464,12 +464,12 @@ EOF
 ok "Limites de arquivo aumentados para ${DOCKER_USER} (65536)"
 
 # ═══════════════════════════════════════════════════════════════════
-# FASE 10: Deploy do BotDiscord
+# FASE 10: Deploy do Cleitin Bot
 # ═══════════════════════════════════════════════════════════════════
 
 log "FASE 10: Preparando diretório do projeto..."
 
-PROJECT_DIR="/opt/botdiscord"
+PROJECT_DIR="/opt/cleitin-bot"
 mkdir -p "$PROJECT_DIR"
 chown "${DOCKER_USER}:${DOCKER_USER}" "$PROJECT_DIR"
 ok "Diretório $PROJECT_DIR criado"
@@ -519,21 +519,21 @@ ok "Timer semanal de limpeza de imagens Docker habilitado (domingos 03:00)"
 cat <<DEPLOY_MSG
 
 ═══════════════════════════════════════════════════════════════
-  PRÓXIMOS PASSOS — Como deployar o BotDiscord:
+  PRÓXIMOS PASSOS — Como deployar o Cleitin Bot:
 ═══════════════════════════════════════════════════════════════
 
   1. Clonar o repositório:
 
-     sudo -u ${DOCKER_USER} git clone <SEU_REPO_URL> /opt/botdiscord
+     sudo -u ${DOCKER_USER} git clone <SEU_REPO_URL> /opt/cleitin-bot
 
   2. Configurar variáveis de ambiente:
 
-     sudo -u ${DOCKER_USER} cp /opt/botdiscord/.env.example /opt/botdiscord/.env
-     sudo -u ${DOCKER_USER} nano /opt/botdiscord/.env
+     sudo -u ${DOCKER_USER} cp /opt/cleitin-bot/.env.example /opt/cleitin-bot/.env
+     sudo -u ${DOCKER_USER} nano /opt/cleitin-bot/.env
 
   3. Subir os containers:
 
-     cd /opt/botdiscord
+     cd /opt/cleitin-bot
      docker compose -f docker/docker-compose.yml up -d
 
   4. Verificar status:
@@ -565,7 +565,7 @@ cat <<DEPLOY_MSG
 
     1. Pare todos os containers
     2. Adicione "userns-remap": "default" ao daemon.json
-    3. REFAÇA o chown: chown -R 100000:100000 /opt/botdiscord/storage
+    3. REFAÇA o chown: chown -R 100000:100000 /opt/cleitin-bot/storage
     4. Reinicie Docker: systemctl restart docker
     5. Reconstrua: docker compose -f docker/docker-compose.yml build --no-cache
 

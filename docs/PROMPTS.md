@@ -1,6 +1,6 @@
 # Prompts.md — Workflow de 3 Etapas (Research → Spec → Code)
 
-> Workflow otimizado para o BotDiscord. Maximiza a janela de contexto limpando
+> Workflow otimizado para o Cleitin Bot. Maximiza a janela de contexto limpando
 > entre fases e usando arquivos como ponte (PRD.md → SPEC.md → implementação).
 >
 > Nota: `docs/MEMORY.md` é lido automaticamente via Memory Protocol no AGENTS.md.
@@ -102,7 +102,7 @@ Seja tático e preciso — file-level detail.
 </task>
 
 <context>
-O projeto BotDiscord usa: Rails 8.1 headless, SQLite WAL, Solid Queue/Cache,
+O projeto Cleitin Bot usa: Rails 8.1 headless, SQLite WAL, Solid Queue/Cache,
 Docker, Minitest + FactoryBot. Veja AGENTS.md para convenções completas.
 </context>
 

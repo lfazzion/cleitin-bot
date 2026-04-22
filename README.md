@@ -1,4 +1,4 @@
-# BotDiscord — Sistema de Data Mining para Influencers
+# Cleitin Bot — Sistema de Data Mining para Influencers
 
 Este projeto é um sistema completo de coleta de dados, análise de influencers e chatbot com integração ao Discord, construído utilizando Ruby 4.0 e Ruby on Rails 8.1 em modo headless.
 
