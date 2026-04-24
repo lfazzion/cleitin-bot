@@ -21,7 +21,7 @@ services:
       XDG_CACHE_HOME: /tmp/.chromium
     volumes:
       # Bind mount relativo ao docker-compose.yml → ../storage = raiz do projeto
-      - ../storage:/rails/storage
+      - storage-data:/rails/storage
     ports:
       - "3000:3000"
     depends_on:
@@ -55,7 +55,7 @@ services:
       XDG_CONFIG_HOME: /tmp/.chromium
       XDG_CACHE_HOME: /tmp/.chromium
     volumes:
-      - ../storage:/rails/storage
+      - storage-data:/rails/storage
     depends_on:
       chrome:
         condition: service_healthy
@@ -77,7 +77,7 @@ services:
       RAILS_ENV: production
       RAILS_LOG_TO_STDOUT: "true"
     volumes:
-      - ../storage:/rails/storage
+      - storage-data:/rails/storage
     networks:
       - internal
     entrypoint: bin/discord-bot
@@ -137,5 +137,29 @@ services:
       - internal
     restart: unless-stopped
 
+  # ── SearXNG Web Search ───────────────────────────────────────────────────
+  searxng:
+    image: searxng/searxng:latest
+    env_file:
+      - ../.env
+    environment:
+      SEARXNG_BASE_URL: "http://searxng:8080/"
+    volumes:
+      - ./searxng:/etc/searxng:ro
+    networks:
+      - internal
+    cap_drop:
+      - ALL
+    security_opt:
+      - "no-new-privileges:true"
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "--quiet", "http://localhost:8080/healthz"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+    restart: unless-stopped
+
 volumes:
   scraping-data:
+  storage-data:
