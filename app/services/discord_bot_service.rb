@@ -6,11 +6,18 @@ require 'concurrent'
 class DiscordBotService
   class << self
     def start
+      $stdout.sync = true
+      $stderr.sync = true
       @running = Concurrent::AtomicBoolean.new(true)
+
+      # discordrb 3.7.2 não define :message_content (Discord intent 15 = 1<<15 = 32768)
+      # na constant INTENTS. Bitmask: GUILDS=1 | GUILD_MESSAGES=512 | DM=4096 | MSG_CONTENT=32768
+      message_content = 1 << 15
+      intents_bitmask = 1 | 512 | 4096 | message_content
 
       bot = Discordrb::Bot.new(
         token: ENV['DISCORD_BOT_TOKEN'],
-        intents: %i[servers server_messages direct_messages message_content]
+        intents: intents_bitmask
       )
 
       bot.message(content: /./) do |event|
@@ -80,11 +87,13 @@ class DiscordBotService
           event.respond(response_text)
         end
       rescue RubyLLM::ContextLengthExceededError, RubyLLM::RateLimitError,
-             RubyLLM::PaymentRequiredError, RubyLLM::OverloadedError => e
+             RubyLLM::PaymentRequiredError, RubyLLM::OverloadedError,
+             RubyLLM::ServiceUnavailableError => e
         Rails.logger.warn "[DiscordBotService] Modelo primário falhou (#{e.class.name}: #{e.message}), tentando fallback..."
         begin
-          fallback_chat = ChatSessionManager.create_fallback_chat
-          response = fallback_chat.ask(content)
+          # Troca o modelo mantendo histórico e tools do chat atual
+          chat.with_model(ChatSessionManager::FALLBACK_MODEL)
+          response = chat.ask(content)
           response_text = response.respond_to?(:content) ? response.content : response.to_s
 
           if response_text.length > 2000

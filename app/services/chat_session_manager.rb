@@ -3,7 +3,7 @@
 class ChatSessionManager
   TTL_MINUTES = 30
   PRIMARY_MODEL = 'openai/gpt-oss-120b:free'
-  FALLBACK_MODEL = 'gemma-4-31b-it'
+  FALLBACK_MODEL = 'nvidia/nemotron-3-nano-30b-a3b:free'
 
   class << self
     def get_or_create(user_id, channel_id)
@@ -61,14 +61,17 @@ class ChatSessionManager
     end
 
     def all_tool_classes
-      [
+      tools = [
         ProfileLookupTool, ProfileListTool, ProfileSearchTool, ProfileCompareTool,
         RecentPostsTool, TopPostsTool, PostsByTypeTool, PostEngagementTool,
         EngagementRateTool, SnapshotTrendTool, ProfileRankingTool,
         ProspectsTool, UnclassifiedProfilesTool,
         UpcomingCatalogTool, PopularCatalogTool,
-        UpcomingEventsTool, RecentArticlesTool
+        UpcomingEventsTool, RecentArticlesTool,
+        WebSearchTool
       ]
+      tools << PageFetchTool if ENV["ENABLE_PAGE_FETCH"].to_s.downcase == "true"
+      tools
     end
   end
 end
