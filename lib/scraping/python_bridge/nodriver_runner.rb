@@ -34,6 +34,20 @@ module ScrapingServices
         result.deep_symbolize_keys
       end
 
+      # Busca uma URL arbitrária via Nodriver (fallback Python para domínios hard-blocked).
+      # Retorna hash { title:, url:, content:, html_bytes: } ou nil em falha.
+      # Chamado por `Fetcher::PageFetcher` quando host está em `config/hard_domains.yml`.
+      def fetch_page(url, proxy: nil)
+        script_path = PYTHON_SCRIPT_PATH.join('nodriver_fetch.py').to_s
+        cmd = ['python3', '-u', script_path, url]
+        cmd += ['--proxy', proxy] if proxy
+
+        result = execute(cmd)
+        return nil if result.nil?
+
+        result.deep_symbolize_keys
+      end
+
       private
 
       def build_command(mode, username, limit: nil, platform: nil, proxy: nil)
