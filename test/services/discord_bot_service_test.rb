@@ -42,13 +42,11 @@ class DiscordBotServiceTest < ActiveSupport::TestCase
   test 'handle_message trata RateLimitError com fallback' do
     mock_chat = mock('chat')
     mock_chat.stubs(:ask).raises(RubyLLM::RateLimitError, 'rate limit')
-
-    mock_fallback_chat = mock('fallback_chat')
-    mock_fallback_response = stub(content: 'resposta do fallback')
-    mock_fallback_chat.stubs(:ask).returns(mock_fallback_response)
+    mock_response = stub(content: 'resposta do fallback')
+    mock_chat.stubs(:ask).returns(mock_response)
+    mock_chat.expects(:with_model).with(ChatSessionManager::FALLBACK_MODEL).returns(mock_chat)
 
     ChatSessionManager.stubs(:get_or_create).returns(mock_chat)
-    ChatSessionManager.stubs(:create_fallback_chat).returns(mock_fallback_chat)
 
     event = mock('event')
     event.stubs(:user).returns(stub(id: 123))
