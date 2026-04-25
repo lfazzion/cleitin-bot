@@ -10,6 +10,18 @@
 
 > O que estamos construindo / investigando nas últimas 48h.
 
+- **[2026-04-23]** `PageFetchTool` implementada — 19ª tool do chatbot, opt-in via `ENABLE_PAGE_FETCH`.
+  - Motivação: `WebSearchTool` (SearXNG snippets) falhou na query canônica "preço do bitcoin agora" — snippets são meta descriptions HTML estáticas, preço renderizado via JS pós-load não aparece. Solução: tool irmã que fetcha página via Chrome headless.
+  - Arquivos novos: `app/tools/page_fetch_tools.rb`, `lib/fetcher/{ssrf_guard,ttl_policy,bot_detection,readability_injector,page_fetcher}.rb`, `vendor/javascript/readability.min.js` (Mozilla Readability 0.5.0, ~84KB), `config/{live_hosts,hard_domains}.yml`, `scripts/python/nodriver_fetch.py`.
+  - Gemfile: `ferrum ~> 0.17.2` (upgrade + `dockerize: true`), `ssrf_filter ~> 1.5`, `ruby-readability ~> 0.7.3` (gem revivida dez/2025).
+  - SSRF: IPAddr stdlib com blocklist estendida (RFC1918 + 127/8 + 169.254/16 + 100.64/10 + IPv6 ULA/link-local/IPv4-mapped). Validação pré-fetch; DNS resolve e checa TODOS A/AAAA contra blocklist (anti DNS rebinding).
+  - Extração híbrida (LLM não escolhe modo): Mozilla Readability.js injetado via `page.evaluate` → fallback `document.body.innerText` (crítico pra preços em widgets fora de `<article>`) → fallback final `ruby-readability`. Para live hosts (CoinGecko, TradingView etc.), body.innerText é preferido direto.
+  - Cache Solid Cache: TTL bucketed (live 60s / docs 7d / news 1h / default 15min). Chave normalizada (drop fragment + utm_*/fbclid/gclid + sort query + lowercase host). Rate limit por-host via `Rails.cache.increment` atômico (5/min/host).
+  - Chrome: `Ferrum::Browser` singleton + `BrowserContext` per-request + `context.dispose` em `ensure`. Restart interno a cada 24h (sem docker socket).
+  - Bot detection: markers Cloudflare (title + body + URL path) + status 403/429. Cooldown 6-12h uniform random em `Rails.cache`. Escalação `config/hard_domains.yml` estática pra `ScrapingServices::NodriverRunner.fetch_page` (método novo + `nodriver_fetch.py`).
+  - Flag `ENABLE_PAGE_FETCH=false` default: chatbot.yml bullets sobre page_fetch são ERB-conditionals; `ChatSessionManager#all_tool_classes` registra tool só com flag ligada.
+  - 78 novos testes; suite total 520 runs, 0 failures, 0 errors.
+  - Smoke manual pós-deploy pendente: validar "preço do bitcoin agora em dólares" ±2% vs CoinGecko API.
 - **[2026-03-30]** Deploy hardening (Propostas 1-3: `chore/deploy-hardening`).
   - `set -Eeuo pipefail` em deploy.sh e recover-failure.sh (ERR trap propaga para rollback)
   - Healthcheck nativo docker-compose: `curl /up` (app) + `curl /json/version` (chrome)
@@ -66,6 +78,10 @@
 
 | Data | Padrão | Contexto |
 |------|--------|----------|
+| 2026-04-23 | PageFetchTool: extração híbrida Readability.js (injetado no Chrome) → body.innerText → ruby-readability | Readability sozinho descarta widgets não-article (preços de crypto em header ficam de fora). Body.innerText é essencial pra páginas live. LLM não escolhe modo — interno. |
+| 2026-04-23 | SSRF guard via IPAddr stdlib + DNS resolve com validação de TODOS A/AAAA | Ferrum/Chrome faz DNS próprio; não dá pra forçar IP como `ssrf_filter` faz com Net::HTTP. Gem `ssrf_filter` no Gemfile pra casos futuros de fetch HTTP direto (HEAD pré-fetch, redirects). |
+| 2026-04-23 | Browser Ferrum singleton + BrowserContext per-request + restart 24h interno | Isolamento de cookies/storage sem custo de spawn. Restart sem dependência de docker socket. Fonte: Ferrum #228. |
+| 2026-04-23 | ferrum ~> 0.17.2 (dockerize: true) | Breaking-change mínima; `dockerize: true` adiciona flags container-appropriate; `browser.reset` agora dispõe o default context. |
 | 2026-04-17 | Upgrade para Gemma 4 31B | Atualização do modelo interativo de curto contexto (google/gemma-4-31b) em substituição ao Gemma 3 27B. |
 | 2026-03-30 | Swap via zRAM (ALGO=zstd, 50%) em vez de disco físico | Poupa limite agressivo de IOPS (3000) do boot volume da OCI. Melhoria pragmática nativa via `zram-tools`. |
 | 2026-03-26 | ruby_llm ~> 1.14 (não 1.12) | Suporte a Imagen via `RubyLLM.paint` — API mudou em 1.14 |
@@ -151,6 +167,7 @@ rg "<palavra-chave do problema>" docs/memory/
 
 | Data | Ação | Seção Afetada |
 |------|------|---------------|
+| 2026-04-23 | PageFetchTool implementada: `lib/fetcher/` (SsrfGuard, TtlPolicy, BotDetection, ReadabilityInjector, PageFetcher), `app/tools/page_fetch_tools.rb`, Mozilla Readability.js vendored. Gemfile: ferrum 0.17.2, ssrf_filter 1.5, ruby-readability 0.7.3. Opt-in `ENABLE_PAGE_FETCH`. 78 novos testes (520 total, verde). Design doc em `docs/superpowers/specs/2026-04-23-page-fetch-tool-design.md`. | Contexto Ativo, Padrões Ratificados |
 | 2026-04-17 | Upgraded default short-context interaction model from Gemma 3 27B to Gemma 4 31B (`gemma_client.rb` and docs). | Padrões Ratificados |
 | 2026-03-30 | Atualização de arquitetura OCI Free Tier: Substituído o `/swapfile` (disco físico) por gerador de memória comprimida `zRAM`, minimizando o esgotamento de IOPS no boot volume. Ajustado swappiness de 10 para 100. Adição de parâmetros de cifra (Ciphers/MACS) estritos ao hardening SSH. | Contexto Ativo, Padrões Ratificados |
 | 2026-03-28 | Correções deploy.sh: rollback com git reset --hard (em vez de git checkout), snapshot de Docker image IDs pré-deploy para possibility de rollback completo de containers. | Contexto Ativo |

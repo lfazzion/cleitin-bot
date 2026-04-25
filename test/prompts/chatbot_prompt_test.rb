@@ -32,4 +32,29 @@ class ChatbotPromptTest < ActiveSupport::TestCase
     prompt = Llm::PromptLoader.load('chatbot', user_message: 'test')
     assert_includes prompt[:system], 'current_datetime'
   end
+
+  test 'conditional page_fetch é incluído quando ENABLE_PAGE_FETCH=true' do
+    ENV['ENABLE_PAGE_FETCH'] = 'true'
+    prompt = Llm::PromptLoader.load('chatbot', user_message: 'test')
+    assert_includes prompt[:system], 'page_fetch'
+  ensure
+    ENV.delete('ENABLE_PAGE_FETCH')
+  end
+
+  test 'conditional page_fetch é omitido quando ENABLE_PAGE_FETCH=false' do
+    ENV['ENABLE_PAGE_FETCH'] = 'false'
+    prompt = Llm::PromptLoader.load('chatbot', user_message: 'test')
+    assert_not_includes prompt[:system], 'page_fetch'
+  ensure
+    ENV.delete('ENABLE_PAGE_FETCH')
+  end
+
+  test 'ERB tags nunca aparecem literais no output renderizado' do
+    ENV['ENABLE_PAGE_FETCH'] = 'true'
+    prompt = Llm::PromptLoader.load('chatbot', user_message: 'test')
+    assert_not_includes prompt[:system], '<%'
+    assert_not_includes prompt[:system], '%>'
+  ensure
+    ENV.delete('ENABLE_PAGE_FETCH')
+  end
 end

@@ -1,0 +1,22 @@
+use_default_settings:
+  engines:
+    keep_only:
+      - bing
+      - duckduckgo
+      - wikipedia
+      - wikidata
+
+server:
+  secret_key: "!env SEARXNG_SECRET_KEY"
+  limiter: false
+  public_instance: false
+  image_proxy: false
+  base_url: "http://searxng:8080/"
+  method: "GET"
+
+search:
+  formats:
+    - html
+    - json
+  safe_search: 1
+  default_lang: "pt-BR"
